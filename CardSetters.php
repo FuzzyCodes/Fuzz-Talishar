@@ -39,7 +39,17 @@ function BanishCard(&$banish, &$classState, $cardID, $modifier, $player="", $fro
   ++$classState[$CS_CardsBanished];
   if(AttackValue($cardID) >= 6)
   {
+
+    WriteLog($mainCharacter[0]);
+    WriteLog( GetClassState($mainPlayer, $CS_Num6PowBan));
+    if(($myCharacter[0] == "MON119" || $myCharacter[0] == "MON120") && GetClassState($mainPlayer, $CS_Num6PowBan) == 0)
+    {
+          WriteLog("Levia gained 1 life from banishing a card with 6 or more power for the first time this turn.");
+          GainHealth(1, $player);
+    }
+
     ++$classState[$CS_Num6PowBan];
+
     $index = FindCharacterIndex($player, "MON122");
     if($index >= 0 && IsEquipUsable($player, $index))
     {
@@ -47,9 +57,11 @@ function BanishCard(&$banish, &$classState, $cardID, $modifier, $player="", $fro
        AddDecisionQueue("YESNO", $player, "if_you_want_to_destroy_Hooves_of_the_Shadowbeast_to_gain_an_action_point", 1);
        AddDecisionQueue("NOPASS", $player, "-", 1);
        AddDecisionQueue("PASSPARAMETER", $player, $index, 1);
-       AddDecisionQueue("DESTROYCHARACTER", $player, "-", 1);//Operates off last result
+       AddDecisionQueue("DESTROYCHARACTER", $player, "MON122", 1);
        AddDecisionQueue("GAINACTIONPOINTS", $player, 1, 1);
+       AddGraveyard($cardID, $mainPlayer, "EQUIP");
     }
+
   }
 }
 
@@ -356,4 +368,3 @@ function AddSpecificGraveyard($cardID, &$graveyard, $from)
 }
 
 ?>
-
