@@ -6,6 +6,7 @@
 
   //We should always have a player ID as a URL parameter
   $gameName=$_GET["gameName"];
+  if(!IsGameNameValid($gameName)) { echo("Invalid game name."); exit; }
   $playerID=TryGet("playerID", 3);
 
   //First we need to parse the game state from the file
@@ -16,6 +17,7 @@
   include "HostFiles/Redirector.php";
   include "Libraries/UILibraries.php";
   include "Libraries/StatFunctions.php";
+  include "Libraries/PlayerSettings.php";
 
   if($currentPlayer == $playerID) $icon = "ready.png";
   else $icon = "notReady.png";
@@ -144,7 +146,7 @@
     echo("</div>");
   }
 
-  if(($turn[0] == "BUTTONINPUT" || $turn[0] == "CHOOSEARCANE") && $turn[1] == $playerID)
+  if(($turn[0] == "BUTTONINPUT" || $turn[0] == "CHOOSEARCANE" || $turn[0] == "BUTTONINPUTNOPASS" || $turn[0] == "CHOOSEFIRSTPLAYER") && $turn[1] == $playerID)
   {
     echo("<div display:inline;'>");
     $options = explode(",", $turn[2]);
@@ -220,14 +222,14 @@
     echo("</tr><tr>");
     for($i=0; $i<count($myHand); ++$i)
     {
-      echo("<td>");
+      echo("<td><span>");
       echo(CreateButton($playerID, "Top", 12, $i));
       echo("</span><span>");
       echo(CreateButton($playerID, "Bottom", 13, $i));
-      echo("</span></div>");
+      echo("</span>");
       echo("</td>");
     }
-    echo("</tr><table>");
+    echo("</tr></table>");
   }
 
   if($turn[0] == "CHOOSECOMBATCHAIN" && $turn[1] == $playerID)
@@ -235,7 +237,7 @@
     ChoosePopup($combatChain, $turn[2], 16, "Choose a card from the combat chain", CombatChainPieces());
   }
 
-  if($turn[0] == "CHOOSEMULTIZONE" && $turn[1] == $playerID)
+  if(($turn[0] == "MAYCHOOSEMULTIZONE" || $turn[0] == "CHOOSEMULTIZONE") && $turn[1] == $playerID)
   {
     echo("<div display:inline;'>");
     $options = explode(",", $turn[2]);
@@ -249,6 +251,7 @@
       else if($option[0] == "THEIRALLY") $source = $theirAllies;
       else if($option[0] == "MYCHAR") $source = $myCharacter;
       else if($option[0] == "THEIRCHAR") $source = $theirCharacter;
+      else if($option[0] == "MYITEMS") $source = $myItems;
       else if($option[0] == "LAYER") $source = $layers;
       echo(Card($source[intval($option[1])], "CardImages", 400, 16, 0, 0, 0, 0, $options[$i]));
     }
@@ -338,6 +341,21 @@
 
   //Now display their Auras and Items
   echo("<div style='position: fixed; top:250px; left:50%; display:inline;'>");
+  //Put landmarks here for now?...
+  if(count($landmarks) > 0)
+  {
+    echo("<div style='display:inline-block;'>");
+    echo("<h3>Landmark:</h3>");
+    for($i=0; $i<count($landmarks); $i+=LandmarkPieces())
+    {
+      $playable = IsPlayable($landmarks[$i], $turn[0], "PLAY", $i, $restriction);
+      $action = ($playable && $currentPlayer == $playerID ? 25 : 0) ;
+      $border = CardBorderColor($landmarks[$i], "PLAY", $playable);
+      $counters = 0;
+      echo(Card($landmarks[$i], "CardImages", 180, $action, 1, 0, $border, $counters, strval($i), "", true));//TODO: Show sideways
+    }
+    echo("</div>");
+  }
   if(count($theirAuras) > 0)
   {
     echo("<div style='display:inline-block;'>");
@@ -388,7 +406,7 @@
     echo("<div style='position: fixed; top:10px; left:83%; display:inline;'><h3 style='width:130px; background-color: rgba(255,255,255,0.70);'>Their Arsenal:</h3>");
     for($i=0; $i<count($theirArsenal); $i+=ArsenalPieces())
     {
-      if($theirArsenal[$i+1] == "UP") echo(Card($theirArsenal[$i], "CardImages", 180, 0, 0));
+      if($theirArsenal[$i+1] == "UP") echo(Card($theirArsenal[$i], "CardImages", 180, 0, 0, $theirArsenal[$i+2] == 0 ? 1 : 0, 0, $theirArsenal[$i+3]));
       else echo(Card("cardBack", "CardImages", 180, 0, 0));
     }
     echo("</div>");
@@ -398,7 +416,7 @@
   echo(CreatePopup("myPitchPopup", $myPitch, 1, 0, "Your Pitch"));
   echo(CreatePopup("myDiscardPopup", $myDiscard, 1, 0, "Your Discard"));
   echo(CreatePopup("myBanishPopup", [], 1, 0, "Your Banish", 1, BanishUI()));
-  echo(CreatePopup("myStatsPopup", [], 1, 0, "Your Game Stats", 1, CardStats($playerID) . "<BR>" . CreateButton($playerID, "Revert Gamestate", 10000, 0, "24px")));
+  echo(CreatePopup("myStatsPopup", [], 1, 0, "Your Game Stats", 1, CardStats($playerID) . "<BR>" . CreateButton($playerID, "Revert Gamestate", 10000, 0, "24px") . "<BR><BR>" . GetSettingsUI($playerID)));
 
   //Display the player's hand at the bottom of the screen
   echo("<div style='position: fixed; left:10px; bottom:10px; width:40%; display:inline;'>");
@@ -486,6 +504,10 @@ echo("<div title='Click to view the game stats.' style='cursor:pointer; position
     echo(Card($myCharacter[$i], "CardImages", 180, $currentPlayer == $playerID && $playable ? 3 : 0, 1, $myCharacter[$i+1] !=2 ? 1 : 0, $border, $counters, strval($i)));
     $effects = ActiveCharacterEffects($playerID, $i);
     if($effects != "") echo("<img title='Buffed by: $effects' style='position:absolute; z-index:100; top:-100px; left:45px;' src='./Images/arsenal.png' />");
+    if($restriction != "") {
+      $restrictionName = CardName($restriction);
+      echo("<img title='Restricted by: " . ($restrictionName != "" ? $restrictionName : $restriction) . "' style='position:absolute; z-index:100; top:-100px; left:45px;' src='./Images/restricted.png' />");
+    }
     echo("</span>");
   }
   echo("</div>");
@@ -498,8 +520,9 @@ echo("<div title='Click to view the game stats.' style='cursor:pointer; position
     {
       $playable = $turn[0] != "P" && IsPlayable($myArsenal[$i], $turn[0], "ARS", -1, $restriction);
       $border = CardBorderColor($myArsenal[$i], "ARS", $playable);
+      $counters = $myArsenal[$i+3];
       echo("<div>");
-      echo(Card($myArsenal[$i], "CardImages", 180, $currentPlayer == $playerID && $playable ? 5 : 0, 1, 0, $border, 0, strval($i)));
+      echo(Card($myArsenal[$i], "CardImages", 180, $currentPlayer == $playerID && $playable ? 5 : 0, 1, $myArsenal[$i+2] > 0 ? 0 : 1, $border, $counters, strval($i)));
       if($myArsenal[$i+1] == "UP") echo("<img style='position:absolute; left:" . (40 + ($playable ? 5 : 0)) . "px; bottom:3px; height:70px; ' src='./Images/faceUp.png' title='This arsenal card is face up.'></img>");
       else echo("<img style='position:absolute; left:" . (40 + ($playable ? 5 : 0)) . "px; bottom:" . (3 + ($playable ? 5 : 0)) . "px; height:70px; ' src='./Images/faceDown.png' title='This arsenal card is face down.'></img>");
       echo("</div>");
@@ -547,6 +570,7 @@ echo("<div title='Click to view the game stats.' style='cursor:pointer; position
       case "MULTICHOOSEHAND": return 0;
       case "CHOOSEMULTIZONE": return 0;
       case "CHOOSEBANISH": return 0;
+      case "BUTTONINPUTNOPASS": return 0;
       default: return 1;
     }
   }

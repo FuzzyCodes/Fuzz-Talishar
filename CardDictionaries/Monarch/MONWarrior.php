@@ -25,6 +25,7 @@
       case "MON110": case "MON111": case "MON112": return "A";
       case "MON113": case "MON114": case "MON115": return "A";
       case "MON116": case "MON117": case "MON118": return "A";
+      case "MON405": return "M";
       default: return "";
     }
   }
@@ -77,6 +78,7 @@
       case "MON109": return 1;
       case "MON110": case "MON113": case "MON116": return 1;
       case "MON111": case "MON114": case "MON117": return 2;
+      case "MON405": return "0";
       default: return 3;
     }
   }
@@ -245,6 +247,21 @@
     global $myClassState, $mainClassState, $CS_NumCharged, $mainPlayerGamestateStillBuilt;
     if($mainPlayerGamestateStillBuilt) return $mainClassState[$CS_NumCharged] > 0;
     else return $myClassState[$CS_NumCharged] > 0;
+  }
+
+  function MinervaThemisAbility($player, $index)
+  {
+    $arsenal = &GetArsenal($player);
+    ++$arsenal[$index+3];
+    if($arsenal[$index+3] == 3)
+    {
+      WriteLog("Minerva Themis searched for a specialization card.");
+      RemoveArsenal($player, $index);
+      BanishCardForPlayer("MON405", $player, "ARS", "-");
+      AddDecisionQueue("FINDINDICES", $player, "DECKSPEC");
+      AddDecisionQueue("CHOOSEDECK", $player, "<-", 1);
+      AddDecisionQueue("ADDARSENALFACEUP", $player, "DECK", 1);
+    }
   }
 
 ?>

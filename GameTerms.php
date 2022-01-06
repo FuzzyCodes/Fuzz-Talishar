@@ -35,6 +35,7 @@
       case "CHOOSEHAND": return "a card from hand";
       case "CHOOSEHANDCANCEL": return "a card from hand";
       case "BUTTONINPUT": return "a button";
+      case "BUTTONINPUTNOPASS": return "a button";
       case "MAYCHOOSEDISCARD": return "cards from discard";
       case "CHOOSEDISCARDCANCEL": return "cards from discard";
       case "CHOOSEDISCARD": return "cards from discard";
@@ -48,8 +49,10 @@
       case "CHOOSEARSENAL": return "a card from arsenal";
       case "CHOOSEARSENALCANCEL": return "a card from arsenal";
       case "CHOOSEMULTIZONE": return "a card";
+      case "MAYCHOOSEMULTIZONE": return "a card";
       case "CHOOSEBANISH": return "a card from banish";
       case "INSTANT": return "an instant";
+      case "CHOOSEFIRSTPLAYER": return "who will be the first player";
     }
   }
 

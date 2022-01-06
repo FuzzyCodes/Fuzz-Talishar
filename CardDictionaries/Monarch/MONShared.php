@@ -4,6 +4,7 @@
   {
     switch($cardID)
     {
+      case "MON000": return 0;
       case "MON001": case "MON002": return 2;
       case "MON029": case "MON030": case "MON031": return 0;
       case "MON061": return 1;
@@ -14,6 +15,7 @@
       case "MON153": case "MON154": return 0;
       case "MON155": return 1;
       case "MON188": return 1;
+      case "MON192": return 2;
       case "MON219": return 0;
       case "MON220": return 0;
       case "MON221": return 2;
@@ -31,6 +33,7 @@
     global $currentPlayer, $mainPlayer, $defPlayer;
     switch($cardID)
     {
+      case "MON000": return "A";
       case "MON001": case "MON002": return "I";
       case "MON029": case "MON030": return "AR";
       case "MON031": return "AA";
@@ -42,6 +45,7 @@
       case "MON153": case "MON154": return "A";
       case "MON155": return "AA";
       case "MON188": return "I";
+      case "MON192": return "A";
       case "MON219": return "AA";
       case "MON220": return "AA";
       case "MON221": return "AA";
@@ -98,6 +102,7 @@
   {
     switch($cardID)
     {
+      case "MON000": return true;
       case "MON090": return true;
       case "MON108": return true;
       case "MON153": case "MON154": return true;
@@ -212,6 +217,7 @@
       case "MON278": case "MON279": case "MON280": return true;
       case "MON296": case "MON297": case "MON298": return CardType($attackID) == "AA" && AttackValue($attackID) <= 3;
       case "MON299": case "MON300": case "MON301": return CardType($attackID) == "AA";
+      case "MON406": return true;
       default: return false;
     }
   }
@@ -225,4 +231,3 @@
   }
 
 ?>
-

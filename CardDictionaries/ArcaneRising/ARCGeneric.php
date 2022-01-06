@@ -139,7 +139,7 @@
   function ARCGenericPlayAbility($cardID, $from, $resourcesPaid)
   {
     global $currentPlayer, $combatChainState, $CCS_CurrentAttackGainedGoAgain, $myClassState, $CS_NumMoonWishPlayed, $myHealth, $myDeck;
-    global $CS_NextNAACardGoAgain;
+    global $CS_NextNAACardGoAgain, $CS_ArcaneDamagePrevention;
     switch($cardID)
     {
       case "ARC151":
@@ -163,6 +163,8 @@
         AddDecisionQueue("MULTICHOOSETEXT", $currentPlayer, "2-Buff_attack_actions,Go_again,Attack_actions_from_arsenal,Banish_and_draw");
         AddDecisionQueue("ARTOFWAR", $currentPlayer, "-", 1);
         return "";
+      case "ARC162":
+        return "Chains of Eminence is currently a manual resolve card. Name the card in chat, and enforce not playing it manually.";
       case "ARC164": case "ARC165": case "ARC166":
         if(IHaveLessHealth()) { $combatChainState[$CCS_CurrentAttackGainedGoAgain] = 1; $ret = "Life for a Life gained Go Again."; }
         return $ret;
@@ -176,6 +178,18 @@
         }
         else { $rv .= "."; }
         return  $rv;
+      case "ARC173": case "ARC174": case "ARC175":
+        if($cardID == "ARC173") $prevent = 6;
+        else if($cardID == "ARC174") $prevent = 5;
+        else $prevent = 4;
+        $deck = GetDeck($currentPlayer);
+        if(count($deck) > 0)
+        {
+          $revealed = $deck[0];
+          $prevent -= PitchValue($revealed);
+        }
+        IncrementClassState($currentPlayer, $CS_ArcaneDamagePrevention, $prevent);
+        return "Eirina's Prayer reveals " . CardLink($revealed, $revealed) . " and prevents the next " . $prevent . " arcane damage.";
       case "ARC182": case "ARC183": case "ARC184":
         if($from == "ARS") { $combatChainState[$CCS_CurrentAttackGainedGoAgain] = 1; $ret = "Fervent Forerunner gained Go Again."; }
         return $ret;
@@ -183,10 +197,11 @@
         ++$myClassState[$CS_NumMoonWishPlayed];
         return "";
       case "ARC191": case "ARC192": case "ARC193":
-        if(count($myDeck) == 0) return "Your deck is empty. Ravenous Rabble does not get negative attack.";
-        $pitchVal = PitchValue($myDeck[0]);
+        $deck = GetDeck($currentPlayer);
+        if(count($deck) == 0) return "Your deck is empty. Ravenous Rabble does not get negative attack.";
+        $pitchVal = PitchValue($deck[0]);
         SetCCAttackModifier(0, -$pitchVal);
-        return "Ravenous Rabble reveals " . $myDeck[0] . " and gets -" . $pitchVal . " attack.";
+        return "Ravenous Rabble reveals " . CardLink($deck[0], $deck[0]) . " and gets -" . $pitchVal . " attack.";
       case "ARC200": case "ARC201": case "ARC202": Opt($cardID, 1); return "Fate Foreseen allows you to Opt 1.";
       case "ARC203": case "ARC204": case "ARC205":
         AddCurrentTurnEffect($cardID, $currentPlayer);

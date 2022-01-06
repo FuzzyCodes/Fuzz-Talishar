@@ -4,6 +4,11 @@ function PlayAura($cardID, $player, $number=1)
 {
   $auras = &GetAuras($player);
   if($cardID == "ARC112" && SearchCurrentTurnEffects("ARC081", $player)) ++$number;
+  if($cardID == "MON104")
+  {
+    $index = SearchArsenalReadyCard($player, "MON404");
+    if($index > -1) TheLibrarianEffect($player, $index);
+  }
   for($i=0; $i<$number; ++$i)
   {
     array_push($auras, $cardID);
@@ -102,6 +107,7 @@ function AuraDestroyAbility($cardID)
   global $mainPlayer;
   switch($cardID)
   {
+    case "WTR046": return "Forged for War was destroyed at the beginning of your action phase.";
     case "WTR047": MainDrawCard(); return "Show Time! drew a card.";
     case "WTR054": return BlessingOfDeliveranceDestroy(3);
     case "WTR055": return BlessingOfDeliveranceDestroy(2);
@@ -109,6 +115,7 @@ function AuraDestroyAbility($cardID)
     case "WTR069": case "WTR070": case "WTR071": return EmergingPowerDestroy($cardID);
     case "WTR072": case "WTR073": case "WTR074": return "Stonewall Confidence was destroyed at the beginning of your action phase.";
     case "WTR075": AddCurrentTurnEffect($cardID, $mainPlayer); return "Seismic Surge reduces the cost of the next Guardian attack action card you play this turn by 1.";
+    case "ARC162": return "Chains of Eminence was destroyed at the beginning of your action phase.";
     case "CRU028": return "Stamp Authority is destroyed at the beginning of your action phase.";
     case "CRU029": case "CRU030": case "CRU031": AddCurrentTurnEffect($cardID, $mainPlayer); return "Towering Titan gives your next Guardian Attack Action +" . EffectAttackModifier($cardID) . ".";
     case "CRU038": case "CRU039": case "CRU040": AddCurrentTurnEffect($cardID, $mainPlayer); return "Emerging Dominance gives your next Guardian Attack Action +" . EffectAttackModifier($cardID) . " and dominate.";
@@ -124,25 +131,26 @@ function AuraDestroyAbility($cardID)
 function AuraStartTurnAbilities()
 {
   global $mainPlayer;
-  $mainAuras = &GetAuras($mainPlayer);
-  for($i=count($mainAuras)-AuraPieces(); $i>=0; $i-=AuraPieces())
+  $auras = &GetAuras($mainPlayer);
+  for($i=count($auras)-AuraPieces(); $i>=0; $i-=AuraPieces())
   {
-    $dest = AuraDestroyAbility($mainAuras[$i]);
-    switch($mainAuras[$i])
+    $dest = AuraDestroyAbility($auras[$i]);
+    switch($auras[$i])
     {
       case "MON186": SoulShackleStartTurn($mainPlayer); break;
       case "MON006": GenesisStartTurnAbility(); break;
-      case "CRU075": if($mainAuras[$i+2] == 0) { $dest = "Zen State is destroyed."; } else { --$mainAuras[$i+2]; } break;
+      case "CRU075": if($auras[$i+2] == 0) { $dest = "Zen State is destroyed."; } else { --$auras[$i+2]; } break;
       default: break;
     }
     if($dest != "")
     {
-      AuraDestroyed($mainPlayer, $mainAuras[$i]);
+      WriteLog($dest);
+      AuraDestroyed($mainPlayer, $auras[$i]);
       for($j = $i+AuraPieces()-1; $j >= $i; --$j)
       {
-        unset($mainAuras[$j]);
+        unset($auras[$j]);
       }
-      $mainAuras = array_values($mainAuras);
+      $auras = array_values($auras);
     }
   }
 }
@@ -150,7 +158,7 @@ function AuraStartTurnAbilities()
 
 function AuraBeginEndStepAbilities()
 {
-  global $mainAuras, $mainPlayer;
+  global $mainPlayer;
   $auras = &GetAuras($mainPlayer);
   for($i=count($auras)-AuraPieces(); $i>=0; $i-=AuraPieces())
   {
@@ -181,25 +189,26 @@ function AuraBeginEndStepAbilities()
 
 function AuraEndTurnAbilities()
 {
-  global $mainAuras, $mainClassState, $CS_NumNonAttackCards, $mainPlayer;
-  for($i=count($mainAuras)-AuraPieces(); $i>=0; $i-=AuraPieces())
+  global $mainClassState, $CS_NumNonAttackCards, $mainPlayer;
+  $auras = &GetAuras($mainPlayer);
+  for($i=count($auras)-AuraPieces(); $i>=0; $i-=AuraPieces())
   {
     $remove = 0;
-    switch($mainAuras[$i])
+    switch($auras[$i])
     {
-      case "ARC167": case "ARC168": case "ARC169": if($mainClassState[$CS_NumNonAttackCards] == 0) { $remove = 1; } break;
+      case "ARC167": case "ARC168": case "ARC169": if(GetClassState($mainPlayer, $CS_NumNonAttackCards) == 0) { $remove = 1; } break;
       case "ELE111": $remove = 1; break;
       case "ELE226": $remove = 1; break;
       default: break;
     }
     if($remove == 1)
     {
-      AuraDestroyed($mainPlayer, $mainAuras[$i]);
+      AuraDestroyed($mainPlayer, $auras[$i]);
       for($j = $i+AuraPieces()-1; $j >= $i; --$j)
       {
-        unset($mainAuras[$j]);
+        unset($auras[$j]);
       }
-      $mainAuras = array_values($mainAuras);
+      $auras = array_values($auras);
     }
   }
 }

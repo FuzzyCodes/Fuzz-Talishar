@@ -159,7 +159,7 @@
 
   function MONGenericPlayAbility($cardID, $from, $resourcesPaid)
   {
-    global $currentPlayer, $myResources, $theirHand, $combatChainState, $CCS_CurrentAttackGainedGoAgain, $combatChain, $myClassState, $CS_PlayIndex;
+    global $actionPoints, $currentPlayer, $myResources, $theirHand, $combatChainState, $CCS_CurrentAttackGainedGoAgain, $combatChain, $myClassState, $CS_PlayIndex;
     $rv = "";
     switch($cardID)
     {
@@ -172,7 +172,7 @@
       {
         $combatChain[5] += 2;
       }
-      return "";
+      return "Exude Confidence is a partially manual card. Restrict play of instants and defense reactions manually. Use the Revert Gamestate button under the Stats menu if necessary.";
     case "MON251": case "MON252": case "MON253":
       AddDecisionQueue("FINDINDICES", $currentPlayer, "MYHAND");
       AddDecisionQueue("MAYCHOOSEHAND", $currentPlayer, "<-");

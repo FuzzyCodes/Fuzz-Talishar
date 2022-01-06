@@ -23,6 +23,7 @@
       case "MON222": return "A";
       case "MON223": case "MON224": case "MON225": return "AA";
       case "MON226": case "MON227": case "MON228": return "AA";
+      case "MON406": return "M";
       default: return "";
     }
   }
@@ -78,6 +79,7 @@
       case "MON223": case "MON226": return 1;
       case "MON224": case "MON227": return 2;
       case "MON225": case "MON228": return 3;
+      case "MON406": return 0;
       default: return 3;
     }
   }
@@ -108,7 +110,7 @@
       case "MON139": case "MON144": case "MON147": return 7;
       case "MON123": case "MON125": case "MON126": case "MON129": case "MON135": case "MON140": case "MON141": case "MON145": case "MON148": return 6;
       case "MON127": case "MON130": case "MON136": case "MON142": case "MON146": case "MON149": return 5;
-      case "MON128": case "MON131": case "MON137": return 4;
+      case "MON128": case "MON131": case "MON137": case "MON143" :return 4;
       case "MON221": return 3;
       case "MON226": return 7;
       case "MON223": case "MON227": return 6;
@@ -251,6 +253,32 @@
       $discard = array_values($discard);
     }
     return $BanishedIncludes6;
+  }
+
+  function LadyBarthimontAbility($player, $index)
+  {
+    $deck = &GetDeck($player);
+    if(count($deck) == 0) return;
+    $topDeck = array_shift($deck);
+    BanishCardForPlayer($topDeck, $player, "DECK", "-");
+    $log = "Lady Barthimont banished " . CardLink($topDeck, $topDeck);
+    if(AttackValue($topDeck) >= 6)
+    {
+      $arsenal = &GetArsenal($player);
+      ++$arsenal[$index+3];
+      AddCurrentTurnEffect("MON406", $player);
+      if($arsenal[$index+3] == 2)
+      {
+        $log .= ", gave Dominate, and searched for a specialization card";
+        RemoveArsenal($player, $index);
+        BanishCardForPlayer("MON406", $player, "ARS", "-");
+        AddDecisionQueue("FINDINDICES", $player, "DECKSPEC");
+        AddDecisionQueue("CHOOSEDECK", $player, "<-", 1);
+        AddDecisionQueue("ADDARSENALFACEUP", $player, "DECK", 1);
+      }
+      else $log .= " and gave Dominate";
+      WriteLog($log . ".");
+    }
   }
 
 ?>

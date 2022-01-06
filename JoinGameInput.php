@@ -1,12 +1,16 @@
 <?php
 
-  include "HostFiles/Redirector.php";
-  include "CardDictionary.php";
+  include "Libraries/HTTPLibraries.php";
 
   $gameName=$_GET["gameName"];
+  if(!IsGameNameValid($gameName)) { echo("Invalid game name."); exit; }
   $playerID=$_GET["playerID"];
   $deck=$_GET["deck"];
   $decklink=$_GET["fabdb"];
+
+  include "HostFiles/Redirector.php";
+  include "CardDictionary.php";
+  include "MenuFiles/ParseGamefile.php";
 
   if($decklink != "")
   {
@@ -33,6 +37,7 @@
       $sku = $printing->{'sku'};
       $id = $sku->{'sku'};
       $id = explode("-", $id)[0];
+      $id = GetAltCardID($id);
       $cardType = CardType($id);
       if($cardType == "") //Card not supported, error
       {
@@ -165,14 +170,31 @@
     {
       header("Location: " . $redirectorPath . "MainMenu.php");//We never actually got the lock
     }
-
-    //fwrite($gameFile, "\r\n");
-    fwrite($gameFile, "1\r\n2\r\n4");
     flock($gameFile, LOCK_UN);    // release the lock
     fclose($gameFile);
+    $gameStatus = 4;
+    include "MenuFiles/WriteGamefile.php";
+
+    //fwrite($gameFile, "\r\n");
+    //fwrite($gameFile, "1\r\n2\r\n4");
   }
 
   header("Location: " . $redirectPath . "/GameLobby.php?gameName=$gameName&playerID=$playerID");
+
+function GetAltCardID($cardID)
+{
+  switch($cardID)
+  {
+    case "BOL002": return "MON405";
+    case "BOL006": return "MON400";
+    case "CHN002": return "MON407";
+    case "CHN006": return "MON401";
+    case "LEV002": return "MON406";
+    case "PSM002": return "MON404";
+    case "PSM007": return "MON402";
+  }
+  return $cardID;
+}
 
 ?>
 

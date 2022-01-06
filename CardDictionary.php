@@ -63,6 +63,7 @@
     }
     switch($cardID)
     {
+      case "DUMMY": return "C";
       case "OVRPVE001": return "C";
       case "OVRPVE002": return "C";
       case "OVRPVE003": return "C";
@@ -180,6 +181,7 @@
       //CRU Fable
       case "CRU000": return "R";
       //CRU Brute
+      case "CRU002": return "C";
       case "CRU004": case "CRU005": return "W";
       case "CRU006": return "E";
       case "CRU007": case "CRU008": return "AA";
@@ -451,9 +453,13 @@
         else if($number >= 187 && $number <= 220) return "NONE";//Shadow
         else if($number >= 221 && $number <= 228) return "BRUTE";
         else if($number >= 229 && $number <= 237) return "RUNEBLADE";
+        else if($number == 404) return "ILLUSIONIST";
+        else if($number == 405) return "WARRIOR";
+        else if($number == 406) return "BRUTE";
+        else if($number == 407) return "RUNEBLADE";
         else return "GENERIC";
       case "ELE":
-        if($number == 0) return "???";
+        if($number == 0) return "NONE";
         else if($number >= 1 && $number <= 30) return "GUARDIAN";
         else if($number >= 31 && $number <= 61) return "RANGER";
         else if($number >= 31 && $number <= 90) return "RUNEBLADE";
@@ -461,7 +467,7 @@
         else if($number >= 213 && $number <= 221) return "RANGER";
         else if($number >= 222 && $number <= 232) return "RUNEBLADE";
         else if($number >= 233) return "GENERIC";
-        else return "NONE";//TODO
+        else return "NONE";
       default: return 0;
     }
   }
@@ -916,6 +922,8 @@
       case "CRU166": case "CRU169": case "CRU172": case "CRU175": return 2;
       case "CRU167": case "CRU170": case "CRU173": case "CRU176": return 3;
       //CRU Generic
+      case "CRU177": return 0;
+      case "CRU179": return 0;
       case "CRU180": return 1;
       case "CRU181": return 0;
       case "CRU182": return 3;
@@ -968,7 +976,7 @@
     }
     switch($cardID)
     {
-      case "WTR000": return 0; 
+      case "WTR000": return 0;
       case "WTR038": case "WTR039": case "WTR040": return 0;
       case "CRU177": case "WTR153": return 0;
       //Brute
@@ -1361,12 +1369,17 @@
   function IsPlayable($cardID, $phase, $from, $index=-1, &$restriction=null)
   {
     global $myHand, $currentPlayer, $myClassState, $CS_NumActionsPlayed, $combatChainState, $CCS_BaseAttackDefenseMax;
-    global $CCS_ResourceCostDefenseMin, $CCS_CardTypeDefenseRequirement, $actionPoints;
+    global $CCS_ResourceCostDefenseMin, $CCS_CardTypeDefenseRequirement, $actionPoints, $myCharacter, $mainPlayer, $playerID;
+    if($currentPlayer != $playerID) return false;
     $restriction = "";
     $cardType = CardType($cardID);
     $subtype = CardSubType($cardID);
-    if($phase == "B" && $cardType == "E") return true;
-    if(($phase == "B" || $phase == "D") && $from == "HAND" && IsDominateActive() && NumBlockedFromHand() >= 1) return false;
+    if($phase == "B" && $cardType == "E") { $restriction = ($myCharacter[$index+6] == 1 ? "On combat chain" : ""); return $myCharacter[$index+6] == 0; }
+    if(($phase == "B" || $phase == "D") && $from == "HAND")
+    {
+      if(IsDominateActive() && NumBlockedFromHand() >= 1) return false;
+      if(SearchCharacterForCard($mainPlayer, "CRU047") && CachedTotalAttack() <= 2) return false;
+    }
     if($phase == "B" && $from == "ARS" && !($cardType == "AA" && SearchCurrentTurnEffects("ARC160-2", $currentPlayer))) return false;
     if($phase == "B" || $phase == "D")
     {
@@ -1382,7 +1395,7 @@
     }
     if($from != "PLAY" && $phase == "B" && $cardType != "DR") return BlockValue($cardID);
     if($from != "PLAY" && $phase == "P" && PitchValue($cardID) > 0) return true;
-    $isStaticType = IsStaticType($cardType, $from);
+    $isStaticType = IsStaticType($cardType, $from, $cardID);
     if($isStaticType) { $cardType = GetAbilityType($cardID, $index); }
     if($cardType == "") return false;
     if(RequiresDiscard($cardID) || $cardID == "WTR159")
@@ -1407,15 +1420,17 @@
     }
   }
 
-  function GoesWhereAfterResolving($cardID)
+  function GoesWhereAfterResolving($cardID, $from = null)
   {
     global $currentPlayer, $CS_NumWizardNonAttack;
     $otherPlayer = $currentPlayer == 2 ? 1 : 2;
     switch($cardID)
     {
+      case "WTR163": return "BANISH";
       case "CRU163": return GetClassState($currentPlayer, $CS_NumWizardNonAttack) >= 2 ? "HAND" : "GY";
       case "MON063": return "SOUL";
       case "MON064": return "SOUL";
+
       case "MON231": return "BANISH";
       case "ELE113": return "BANISH";
       case "ELE140": case "ELE141": case "ELE142": return "BANISH";
@@ -1423,6 +1438,7 @@
         $theirChar = GetPlayerCharacter($otherPlayer);
         if(TalentContains($theirChar[0], "SHADOW") && PlayerHasLessHealth($currentPlayer)) return "SOUL";
         else return "GY";
+      case "MON192": if($from=="BANISH") return "HAND";
       default: return "GY";
     }
   }
@@ -1501,6 +1517,7 @@
         if(count($combatChain) == 0) return true;
         $type = CardType($combatChain[0]);
         return $type != "AA";
+      case "MON000": return $from == "PLAY" && SearchCount(SearchHand($currentPlayer, "", "", -1, -1, "", "", false, false, 2)) < 2;
       case "MON001": case "MON002": return count($mySoul) == 0;
       case "MON029": case "MON030": return count($mySoul) == 0;
       case "MON062": return count($mySoul) < 3;
@@ -1515,6 +1532,7 @@
       case "MON150": case "MON151": case "MON152": return count($myDiscard) < 3;
       case "MON189": return SearchCount(SearchBanish($currentPlayer, "", "", -1, -1, "", "", true)) < 6;
       case "MON190": return $myClassState[$CS_NumBloodDebtPlayed] < 6;
+
       case "MON198": $discard = GetDiscard($currentPlayer); return count($discard) < 6;
       case "MON230": return GetClassState($currentPlayer, $CS_NumAttackCards) == 0 || GetClassState($currentPlayer, $CS_NumNonAttackCards) == 0;
       case "MON238": return $myClassState[$CS_DamageTaken] == 0 && $theirClassState[$CS_DamageTaken] == 0;
@@ -1553,6 +1571,7 @@
   function GoesOnCombatChain($phase, $cardID, $from)
   {
     if($phase != "B" && $from == "EQUIP" || $from == "PLAY") $cardType = GetAbilityType($cardID);
+    elseif($phase=="M" && $cardID == "MON192" && $from== "BANISH") $cardType = GetAbilityType($cardID);
     else $cardType = CardType($cardID);
     if($cardType == "I") return false;//Instants as yet never go on the combat chain
     if($phase == "B") return true;//Anything you play during these combat phases would go on the chain
@@ -1563,10 +1582,11 @@
     return false;
   }
 
-  function IsStaticType($cardType, $from="")
+  function IsStaticType($cardType, $from="", $cardID="")
   {
     if($cardType == "C" || $cardType == "E" || $cardType == "W") return true;
     if($from == "PLAY") return true;
+    if($cardID != "" && $from == "BANISH" && AbilityPlayableFromBanish($cardID)) return true;
     return false;
   }
 
@@ -1708,6 +1728,7 @@
       case "MON195": case "MON196": case "MON197": return true;
       case "MON223": case "MON224": case "MON225": return true;
       case "MON278": case "MON279": case "MON280": return true;
+      case "MON406": return true;
       case "ELE005": return true;
       case "ELE016": case "ELE017": case "ELE018": return true;
       case "ELE033-2": return true;
@@ -1726,6 +1747,14 @@
     switch($cardID)
     {
       case "ELE034": return 2;
+      default: return 1;
+    }
+  }
+
+  function ArsenalNumUsesPerTurn($cardID)
+  {
+    switch($cardID)
+    {
       default: return 1;
     }
   }
@@ -1853,10 +1882,19 @@
       case "MON180": case "MON181": case "MON182": return true;
       //Shadow
       case "MON190": return true;//Eclipse - Since play is restricted by num played, it's fine to not restrict this
-      case "MON191": case "MON194":
+      case "MON191": case "MON194": return true;
       case "MON200": case "MON201": case "MON202":
       case "MON203": case "MON204": case "MON205":
       case "MON209": case "MON210": case "MON211": return true;
+    }
+  }
+
+  function AbilityPlayableFromBanish($cardID)
+  {
+    switch($cardID)
+    {
+      case "MON192": return true;
+      default: return false;
     }
   }
 
@@ -1888,7 +1926,34 @@
       case "MON401": return 1;
       case "MON402": return 1;
     }
+    return 0;
+  }
+
+  function IsSpecialization($cardID)
+  {
+    switch($cardID)
+    {
+      case "WTR006": case "WTR009": case "WTR043": case "WTR047": case "WTR081": case "WTR083": case "WTR119": case "WTR121": return true;
+      case "ARC007": case "ARC009": case "ARC043": case "ARC046": case "ARC080": case "ARC083": case "ARC118": case "ARC121": return true;
+      case "CRU000": case "CRU074": return true;
+      case "MON005": case "MON007": case "MON035": case "MON036": case "MON189": case "MON190": case "MON198": case "MON199": return true;
+      case "ELE004": case "ELE036": case "ELE066": return true;
+      default: return false;
+    }
+  }
+
+  function Is1H($cardID)
+  {
+    switch($cardID)
+    {
+      case "WTR078": return true;
+      case "CRU004": case "CRU005": return true;
+      case "CRU051": case "CRU052": return true;
+      case "CRU079": case "CRU080": return true;
+      case "MON105": case "MON106": return true;
+      case "ELE003": case "ELE202": return true;
+      default: return false;
+    }
   }
 
 ?>
-

@@ -24,6 +24,7 @@
   $p1CardStats = GetArray($handler);
   $p1TurnStats = GetArray($handler);
   $p1Allies = GetArray($handler);
+  $p1Settings = GetArray($handler);
 
   //Player 2
   $p2Hand = GetArray($handler);
@@ -42,8 +43,11 @@
   $p2CardStats = GetArray($handler);
   $p2TurnStats = GetArray($handler);
   $p2Allies = GetArray($handler);
+  $p2Settings = GetArray($handler);
 
+  $landmarks = GetArray($handler);
   $winner = trim(fgets($handler));
+  $firstPlayer = trim(fgets($handler));
   $currentPlayer = trim(fgets($handler));
   $currentTurn = trim(fgets($handler));
   $turn = GetArray($handler);
@@ -54,10 +58,12 @@
   $currentTurnEffectsFromCombat = GetArray($handler);
   $nextTurnEffects = GetArray($handler);
   $decisionQueue = GetArray($handler);
+  $dqVars = GetArray($handler);
   $layers = GetArray($handler);
   $layerPriority = GetArray($handler);
   $mainPlayer = trim(fgets($handler));
   $defPlayer = $mainPlayer == 1 ? 2 : 1;
+  $lastPlayed = trim(fgets($handler));
   fclose($handler);
 
   BuildMyGamestate($playerID);
@@ -73,7 +79,8 @@
     global $theirDeck, $theirHand, $theirResources, $theirCharacter, $theirArsenal, $theirHealth, $theirAuras, $theirPitch, $theirBanish, $theirClassState, $theirItems;
     global $theirCharacterEffects, $theirDiscard, $theirCardStats, $theirTurnStats;
     global $p1Soul, $p2Soul, $mySoul, $theirSoul;
-    global $myStateBuiltFor;
+    global $myStateBuiltFor, $mainPlayerGamestateStillBuilt;
+    $mainPlayerGamestateStillBuilt = 0;
     $myStateBuiltFor = $playerID;
     $myHand = $playerID==1 ? $p1Hand : $p2Hand;
     $myDeck = $playerID==1 ? $p1Deck : $p2Deck;
