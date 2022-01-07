@@ -1528,12 +1528,12 @@
       case "MON132": case "MON133": case "MON134":
       case "MON135": case "MON136": case "MON137":
       case "MON141": case "MON142": case "MON143":
-      case "MON147": case "MON148": case "MON149":
+      case "MON147": case "MON198": case "MON149":
       case "MON150": case "MON151": case "MON152": return count($myDiscard) < 3;
       case "MON189": return SearchCount(SearchBanish($currentPlayer, "", "", -1, -1, "", "", true)) < 6;
       case "MON190": return $myClassState[$CS_NumBloodDebtPlayed] < 6;
 
-      case "MON198": $discard = GetDiscard($currentPlayer); return count($discard) < 6;
+      case "MON148": $discard = GetDiscard($currentPlayer); return count($discard) < 6;
       case "MON230": return GetClassState($currentPlayer, $CS_NumAttackCards) == 0 || GetClassState($currentPlayer, $CS_NumNonAttackCards) == 0;
       case "MON238": return $myClassState[$CS_DamageTaken] == 0 && $theirClassState[$CS_DamageTaken] == 0;
       case "ELE118": return ArsenalEmpty($currentPlayer);
@@ -1845,7 +1845,7 @@
       case "MON138": case "MON139": case "MON140"; return true;
       case "MON141": case "MON142": case "MON143"; return true;
       case "MON144": case "MON145": case "MON146"; return true;
-      case "MON147": case "MON148": case "MON149"; return true;
+      case "MON147": case "MON198": case "MON149"; return true;
       //Shadow Runeblade
       case "MON156": case "MON158":
       case "MON159": case "MON160": case "MON161":
@@ -1936,7 +1936,7 @@
       case "WTR006": case "WTR009": case "WTR043": case "WTR047": case "WTR081": case "WTR083": case "WTR119": case "WTR121": return true;
       case "ARC007": case "ARC009": case "ARC043": case "ARC046": case "ARC080": case "ARC083": case "ARC118": case "ARC121": return true;
       case "CRU000": case "CRU074": return true;
-      case "MON005": case "MON007": case "MON035": case "MON036": case "MON189": case "MON190": case "MON198": case "MON199": return true;
+      case "MON005": case "MON007": case "MON035": case "MON036": case "MON189": case "MON190": case "MON148": case "MON199": return true;
       case "ELE004": case "ELE036": case "ELE066": return true;
       default: return false;
     }

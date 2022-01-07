@@ -2963,7 +2963,7 @@ function DecisionQueueStaticEffect($phase, $player, $parameter, $lastResult)
       {
         if(HasBloodDebt($discard[$lastResult[$i]])) ++$numBD;
       }
-      if($numBD > 0) AddCurrentTurnEffect("MON198," . $numBD, $player);
+      if($numBD > 0) AddCurrentTurnEffect("MON148," . $numBD, $player);
       return $lastResult;
     case "ADDATTACKCOUNTERS":
       $lastResults = explode("-", $lastResult);

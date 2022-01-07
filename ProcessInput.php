@@ -1076,11 +1076,11 @@ function FinalizeChainLink($chainClosed=false)
         AddDecisionQueue("ALLCARDTALENTORPASS", $currentPlayer, "SHADOW", 1);
         AddDecisionQueue("ADDCURRENTEFFECT", $currentPlayer, $cardID, 1);
         break;
-      case "MON198":
+      case "MON148":
         AddDecisionQueue("FINDINDICES", $currentPlayer, "GY");
         AddDecisionQueue("PREPENDLASTRESULT", $currentPlayer, "6-", 1);
         AddDecisionQueue("MULTICHOOSEDISCARD", $currentPlayer, "<-", 1, 1);
-        AddDecisionQueue("VALIDATECOUNT", $currentPlayer, "6", 1);
+        //AddDecisionQueue("VALIDATECOUNT", $currentPlayer, "6", 1);
         AddDecisionQueue("SOULHARVEST", $currentPlayer, "-", 1);
         AddDecisionQueue("MULTIREMOVEDISCARD", $currentPlayer, "-", 1);
         AddDecisionQueue("MULTIBANISH", $currentPlayer, "GY,-", 1);

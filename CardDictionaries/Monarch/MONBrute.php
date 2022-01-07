@@ -17,7 +17,7 @@
       case "MON138": case "MON139": case "MON140": return "AA";
       case "MON141": case "MON142": case "MON143": return "AA";
       case "MON144": case "MON145": case "MON146": return "AA";
-      case "MON147": case "MON148": case "MON149": return "AA";
+      case "MON147": case "MON198": case "MON149": return "AA";
       case "MON150": case "MON151": case "MON152": return "A";
       case "MON221": return "W";
       case "MON222": return "A";
@@ -54,7 +54,7 @@
       case "MON138": case "MON139": case "MON140": return 3;
       case "MON141": case "MON142": case "MON143": return 2;
       case "MON144": case "MON145": case "MON146": return 1;
-      case "MON147": case "MON148": case "MON149": return 2;
+      case "MON147": case "MON198": case "MON149": return 2;
       case "MON150": case "MON151": case "MON152": return 1;
       case "MON221": return 0;
       case "MON222": return 2;
@@ -72,7 +72,7 @@
       case "MON123": case "MON124": return 2;
       case "MON125": return 1;
       case "MON126": case "MON129": case "MON132": case "MON135": case "MON138": case "MON141": case "MON144": case "MON147": case "MON150": return 1;
-      case "MON127": case "MON130": case "MON133": case "MON136": case "MON139": case "MON142": case "MON145": case "MON148": case "MON151": return 2;
+      case "MON127": case "MON130": case "MON133": case "MON136": case "MON139": case "MON142": case "MON145": case "MON198": case "MON151": return 2;
       case "MON128": case "MON131": case "MON134": case "MON137": case "MON140": case "MON143": case "MON146": case "MON149": case "MON152": return 3;
       case "MON221": return 0;
       case "MON222": return 3;
@@ -89,8 +89,6 @@
     switch($cardID)
     {
       case "MON122": return 1;
-      case "MON123": return 0;
-      case "MON125": return 0;
       case "MON138": case "MON139": case "MON140": return 0;
       case "MON221": return 0;
       case "MON222": return 0;
@@ -108,7 +106,7 @@
       case "MON124": return 6;
       case "MON138": return 8;
       case "MON139": case "MON144": case "MON147": return 7;
-      case "MON123": case "MON125": case "MON126": case "MON129": case "MON135": case "MON140": case "MON141": case "MON145": case "MON148": return 6;
+      case "MON123": case "MON125": case "MON126": case "MON129": case "MON135": case "MON140": case "MON141": case "MON145": case "MON198": return 6;
       case "MON127": case "MON130": case "MON136": case "MON142": case "MON146": case "MON149": return 5;
       case "MON128": case "MON131": case "MON137": case "MON143" :return 4;
       case "MON221": return 3;
@@ -187,7 +185,7 @@
           $rv = "Dread Screamer gained Go Again from banishing a card with 6 or more power.";
         }
         return $rv;
-      case "MON147": case "MON148": case "MON149":
+      case "MON147": case "MON198": case "MON149":
         RandomBanish3GY();
         return "";
       case "MON150": case "MON151": case "MON152":

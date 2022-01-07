@@ -149,7 +149,7 @@
       case "MON168": case "MON169": case "MON170": return 1;
       case "MON174": case "MON175": case "MON176": return GetClassState($mainPlayer, $CS_NumNonAttackCards);
       case "MON193": return 1;
-      case "MON198": return $arr[1];
+      case "MON148": return $arr[1];
       case "MON200": return 3;
       case "MON201": return 2;
       case "MON202": return 1;
@@ -200,7 +200,7 @@
       case "MON174": case "MON175": case "MON176": return true;
       case "MON193": return CardType($attackID) == "AA";
       case "MON195": case "MON196": case "MON197": return true;
-      case "MON198": return true;
+      case "MON148": return true;
       case "MON200": case "MON201": case "MON202": return CardType($attackID) == "AA";
       case "MON212": return true;
       case "MON218": return true;

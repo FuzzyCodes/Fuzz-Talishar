@@ -26,7 +26,7 @@
       case "MON192": return "DR";
       case "MON193": case "MON194": return "A";
       case "MON195": case "MON196": case "MON197": return "AA";
-      case "MON198": case "MON199": return "AA";
+      case "MON148": case "MON199": return "AA";
       case "MON200": case "MON201": case "MON202": return "A";
       case "MON203": case "MON204": case "MON205": return "AA";
       case "MON206": case "MON207": case "MON208": return "AA";
@@ -79,7 +79,7 @@
       case "MON192": return 2;
       case "MON193": case "MON194": return 0;
       case "MON195": case "MON196": case "MON197": return 3;
-      case "MON198": case "MON199": return 6;
+      case "MON148": case "MON199": return 6;
       case "MON200": case "MON201": case "MON202": return 2;
       case "MON203": case "MON204": case "MON205": return 1;
       case "MON206": case "MON207": case "MON208": return 3;
@@ -104,7 +104,7 @@
       case "MON087": return 2;
       case "MON189": case "MON190": case "MON191": return 3;
       case "MON192": case "MON193": case "MON194": return 1;
-      case "MON198": return 3;
+      case "MON148": return 3;
       case "MON199": return 1;
       case "MON195": case "MON200": case "MON203": case "MON206": case "MON209": case "MON212": case "MON215": return 1;
       case "MON196": case "MON201": case "MON204": case "MON207": case "MON210": case "MON213": case "MON216": return 2;
@@ -136,7 +136,7 @@
       case "MON191": return SearchPitchForNumCosts($defPlayer) * 2;//Not totally accurate
       case "MON192": return 6;
       case "MON194": return 0;
-      case "MON198": case "MON199": return 3;
+      case "MON148": case "MON199": return 3;
       case "MON203": case "MON204": case "MON205": return 3;
       case "MON209": case "MON210": case "MON211": return 3;
       case "MON209": case "MON210": case "MON211": return 3;
@@ -159,7 +159,7 @@
       case "MON074": return 2;
       case "MON191": return SearchPitchForNumCosts($mainPlayer) * 2;//Not totally accurate
       case "MON206": return 7;
-      case "MON195": case "MON198": case "MON199": case "MON207": return 6;
+      case "MON195": case "MON148": case "MON199": case "MON207": return 6;
       case "MON196": case "MON208": case "MON209": return 5;
       case "MON197": case "MON203": case "MON210": return 4;
       case "MON204": case "MON211": return 3;
@@ -307,11 +307,6 @@
     {
       case "MON072": case "MON073": case "MON074": $combatChainState[$CCS_GoesWhereAfterLinkResolves] = "SOUL"; break;
       case "MON078": case "MON079": case "MON080": $combatChainState[$CCS_GoesWhereAfterLinkResolves] = "SOUL"; break;
-      case "MON198":
-        $numSoul = count(GetSoul($defPlayer));
-        for($i=0; $i<$numSoul; ++$i) BanishFromSoul($defPlayer);
-        LoseHealth($numSoul, $defPlayer);
-        break;
       case "MON206": case "MON207": case "MON208": BanishFromSoul($defPlayer); $combatChainState[$CCS_GoesWhereAfterLinkResolves] = "BANISH"; break;
       default: break;
     }
